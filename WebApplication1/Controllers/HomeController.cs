@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ExcelDataReader;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using WebApplication1.Data;
@@ -21,11 +25,55 @@ namespace WebApplication1.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(List<User> users)
         {
-            IEnumerable < User > users = _context.Users;
+            users = users == null ? new List<User>() : users;
             return View(users);
         }
+
+        [HttpPost]
+        public IActionResult Index(IFormFile file , [FromServices] IHostingEnvironment hostingEnvironment )
+        {
+            string filename = $"{hostingEnvironment.WebRootPath}\\files\\{file.FileName}";
+            using(FileStream fs = System.IO.File.Create(filename))
+            {
+                file.CopyTo(fs);
+                fs.Flush();
+            }
+            var users = this.GetListOfUsers(file.FileName);
+            return View(users);
+        }
+
+        public List<User> GetListOfUsers (string fileName)
+        {
+            List<User> list = new List<User>();
+            var filename = $"{Directory.GetCurrentDirectory()}{@"\wwwroot\files"}" + "\\" + fileName;
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            using (var stream = System.IO.File.Open(filename, FileMode.Open, FileAccess.Read))
+            {
+                using (var reader = ExcelReaderFactory.CreateCsvReader(stream))
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(
+                            new User
+                            {
+                                Name = reader.GetValue(0).ToString(),
+                                Phone = reader.GetValue(1).ToString(),
+                                Salary = decimal.Parse(reader.GetValue(2).ToString()),
+                                DateOfBirth = DateTime.Parse(reader.GetValue(3).ToString()),
+                                Married = bool.Parse(reader.GetValue(4).ToString())
+
+                            });
+                    }
+                }
+            }
+            return list;
+            
+        }
+
+
+
 
         public IActionResult Privacy()
         {

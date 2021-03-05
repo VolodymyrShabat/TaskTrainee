@@ -2,38 +2,35 @@
 @{
     this.ViewBag.Title = "Main Page";
 }
-<form id="form" name="form" action="/uploader" enctype="multipart/form-data" method="post">
-    <div class="buttons">
-        <div class="upload-button">
-            <div class="label">Csv file</div>
-            <input id="files" name="files" type="file" size="1" multiple onchange="uploadFiles('files');" />
-        </div>
-    </div>
+<form asp-controller="Home" asp-action="Index" method="post">
+    <input type="file"name="file" />
+    <hr/>
+    <button type="submit">Go</button>
 </form>
-<div id="progress" class="progress">
-    <div id="bar" class="bar"></div>
-    <div id="label" class="label">0%</div>
-</div>
-<div class="download-button">
-    <a id="Download" asp-area="" asp-controller="Home" asp-action="DownloadFile">Download</a>
-</div>
-<table class="table table-bordered table-responsive table-hover">
-    <tr>
-        <th>Name</th>
-        <th>Phone</th>
-        <th>Date Of Birth</th>
-        <th>Married</th>
-        <th>Salary</th>
-    </tr>
-    @foreach (var d in Model)
-    {
-        <tr>
-            <td>@d.Name</td>
-            <td>@d.Phone</td>
-            <td>@d.DateOfBirth</td>
-            <td>@d.Married</td>
-            <td>@d.Salary</td>
-        </tr>
 
-    }
-</table>
+@*<div class="download-button">
+    <a id="Download" asp-area="" asp-controller="Home" asp-action="DownloadFile">Download</a>
+</div>*@
+@if(Model.Count()>0)
+{ 
+    <table class="table table-bordered table-responsive table-hover">
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Date Of Birth</th>
+            <th>Married</th>
+            <th>Salary</th>
+        </tr>
+        @foreach (var d in Model)
+        {
+            <tr>
+                <td>@d.Name</td>
+                <td>@d.Phone</td>
+                <td>@d.DateOfBirth</td>
+                <td>@d.Married</td>
+                <td>@d.Salary</td>
+            </tr>
+
+        }
+    </table>
+}
